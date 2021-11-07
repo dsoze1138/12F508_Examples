@@ -9,4 +9,4 @@ At present it is a work in progress.
 
 This is the schematic:
 
-![PIC12F508_rgb](.\docs\PIC12F508_rgb.png)
+![](C:\Public\GIT\Projects\PIC\12F\12F508_Examples\12F508_mpasm_absolute_mode\docs\PIC12F508_rgb.png)
