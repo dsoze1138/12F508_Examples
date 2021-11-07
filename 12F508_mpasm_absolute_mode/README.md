@@ -9,4 +9,4 @@ At present it is a work in progress.
 
 This is the schematic:
 
-![](.\docs\PIC12F508_rgb.png)
+![](docs\PIC12F508_rgb.png)
