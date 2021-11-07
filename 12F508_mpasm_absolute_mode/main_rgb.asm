@@ -14,8 +14,8 @@
 ;
 ;
 ;
-;   Cycle through all 8 combitations of an RGB LED connected 
-;   to GP0,GP1,GP2 when the switch connectd to GP3 is pressed.
+;   Cycle through all 8 combinations of an RGB LED connected 
+;   to GP0,GP1,GP2 when the switch connected to GP3 is pressed.
 ; 
 ;                        PIC12F508
 ;               +-----------:_:-----------+
@@ -41,13 +41,13 @@
 ;
 ;
 ;
-; Declare one byte in RAM
+; Declare RAM for application
 ;
   CBLOCK 0x07
-    TMR0_Sample:1
-    LED_Drive:1
-    SW_DebounceCount:1
-    SW_StateFlags:1
+    TMR0_Sample      :1
+    LED_Drive        :1
+    SW_DebounceCount :1
+    SW_StateFlags    :1
   ENDC
 
 #define SW_BIT    GPIO,GP3
@@ -67,13 +67,13 @@
     org 0x0000
 
 Start:
-    movwf   OSCCAL      ; Set factroy default for internal oscillator
+    movwf   OSCCAL      ; Set factory default for internal oscillator
     goto    main
 ;
 ; The PIC12F508 can only call functions that start 
-; in the first 256 instruction words.
+; within the first 256 instruction words.
 ; 
-; This specific imnplementation does not call any functions
+; This specific implementation does not call any functions
 ; so there is nothing here.
 ;
 main:
@@ -112,10 +112,10 @@ POR_Wait:
 ; State machine to debounce switch and change LEDs
 ;
 AppLoop:
-    movf    TMR0,W          ; Get TIMER0 count state
-    xorwf   TMR0_Sample,W   ; Compare it to the last Tick sample
-    andlw   TMR0_1MS_BIT    ; TIMER0 bit that changes ever 1.024 milliseconds
-    btfsc   STATUS,Z        ; skip if one millisecond tick time
+    movf    TMR0,W        ; Get TIMER0 count state
+    xorwf   TMR0_Sample,W ; Compare it to the last Tick sample
+    andlw   TMR0_1MS_BIT  ; TIMER0 bit that changes every 1.024 milliseconds
+    btfsc   STATUS,Z      ; skip when it is one millisecond tick time
     goto    AppLoop
 Tick_One_ms:
     xorwf   TMR0_Sample,F ; Remember state of 1.024ms bit
@@ -124,11 +124,10 @@ Tick_One_ms:
     bsf     SW_Sample     ; Switch is pressed
     clrw
     btfsc   SW_Sample     ; Skip if sample switch state released
-    movlw   1
+    iorlw   1
     btfsc   SW_Last       ; Skip if last sample switch state is released
     xorlw   1
-    iorlw   0
-    btfsc   STATUS,Z      ; Skip if current sammple different from last
+    btfsc   STATUS,Z      ; Skip if current sample different from last
     goto    DebounceCount
 ;
 ; Update the last sample
@@ -142,7 +141,7 @@ Tick_One_ms:
     goto    AppLoop
 
 DebounceCount:
-    movf    SW_DebounceCount,F  ; Set zero flag is debounce count is zero
+    movf    SW_DebounceCount,F  ; Set zero flag if debounce count is zero
     btfss   STATUS,Z            ; Skip if debounce count at zero
     decfsz  SW_DebounceCount,F  ; Skip when debounce count changes from one to zero
     goto    AppLoop
@@ -155,11 +154,10 @@ DebounceCount:
 ; Check to see if the last state is different from the new state
     clrw
     btfsc   SW_Stable
-    movlw   1
+    iorlw   1
     btfsc   SW_State
     xorlw   1
-    iorlw   0
-    btfsc   STATUS,Z    ; Skip if last state different from current stable state
+    btfsc   STATUS,Z        ; Skip if last state different from current stable state
     goto    AppLoop
 ;
 ; Update the last state
@@ -168,23 +166,23 @@ DebounceCount:
     bsf     SW_State
 ;
 ; Change what LEDs are on and off
-    btfss   SW_State    ; Skip if switch changed to pressed
+    btfss   SW_State        ; Skip if switch changed to pressed
     goto    AppLoop
 ;
 ; Do the actual work of changing the output bits
     movlw   -1
     addwf   LED_Drive,F     ; Increment pattern
-    btfss   LED_Drive,GP0
+    btfss   LED_Drive,0
     bcf     GPIO,GP0        ; turn on  RED   LED
-    btfsc   LED_Drive,GP0
+    btfsc   LED_Drive,0
     bsf     GPIO,GP0        ; turn off RED   LED
-    btfss   LED_Drive,GP1
+    btfss   LED_Drive,1
     bcf     GPIO,GP1        ; turn on  GREEN LED
-    btfsc   LED_Drive,GP1
+    btfsc   LED_Drive,1
     bsf     GPIO,GP1        ; turn off GREEN LED
-    btfss   LED_Drive,GP2
+    btfss   LED_Drive,2
     bcf     GPIO,GP2        ; turn on  BLUE  LED
-    btfsc   LED_Drive,GP2
+    btfsc   LED_Drive,2
     bsf     GPIO,GP2        ; turn off BLUE  LED
     goto    AppLoop
 
