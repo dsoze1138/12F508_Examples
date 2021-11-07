@@ -67,7 +67,7 @@
     org 0x0000
 
 Start:
-    movwf   OSCCAL      ; Set factory default for internal oscillator
+    movwf   OSCCAL          ; Set factory default for internal oscillator
     goto    main
 ;
 ; The PIC12F508 can only call functions that start 
@@ -77,7 +77,7 @@ Start:
 ; so there is nothing here.
 ;
 main:
-    movlw   b'11010100' ; Select TIMER0 clock source as FOSC/4, prescale TMR0 at 1:32
+    movlw   b'11010100'     ; Select TIMER0 clock source as FOSC/4, prescale TMR0 at 1:32
     option
 ;
 ; Wait for about one second before making PGC/PGD outputs.
@@ -93,9 +93,9 @@ POR_Wait:
     decfsz  TMR0_Sample,F
     goto    POR_Wait
 
-    movlw   b'11010010' ; Select TIMER0 clock source as FOSC/4, prescale TMR0 at 1:8
+    movlw   b'11010010'     ; Select TIMER0 clock source as FOSC/4, prescale TMR0 at 1:8
     option
-    movlw   b'11111000' ; GP2,GP1,GP0 as output
+    movlw   b'11111000'     ; GP2,GP1,GP0 as output
     tris    GPIO
 ;
 ; Initialize application states
@@ -112,22 +112,22 @@ POR_Wait:
 ; State machine to debounce switch and change LEDs
 ;
 AppLoop:
-    movf    TMR0,W        ; Get TIMER0 count state
-    xorwf   TMR0_Sample,W ; Compare it to the last Tick sample
-    andlw   TMR0_1MS_BIT  ; TIMER0 bit that changes every 1.024 milliseconds
-    btfsc   STATUS,Z      ; skip when it is one millisecond tick time
+    movf    TMR0,W          ; Get TIMER0 count state
+    xorwf   TMR0_Sample,W   ; Compare it to the last Tick sample
+    andlw   TMR0_1MS_BIT    ; TIMER0 bit that changes every 1.024 milliseconds
+    btfsc   STATUS,Z        ; skip when it is one millisecond tick time
     goto    AppLoop
 Tick_One_ms:
-    xorwf   TMR0_Sample,F ; Remember state of 1.024ms bit
-    bcf     SW_Sample     ; Assume switch is not pressed
-    btfss   SW_BIT        ; Skip if switch released
-    bsf     SW_Sample     ; Switch is pressed
-    clrw
-    btfsc   SW_Sample     ; Skip if sample switch state released
-    iorlw   1
-    btfsc   SW_Last       ; Skip if last sample switch state is released
-    xorlw   1
-    btfsc   STATUS,Z      ; Skip if current sample different from last
+    xorwf   TMR0_Sample,F   ; Remember state of 1.024ms bit
+    bcf     SW_Sample       ; Assume switch is not pressed
+    btfss   SW_BIT          ; Skip if switch released
+    bsf     SW_Sample       ; Switch is pressed
+    clrw    
+    btfsc   SW_Sample       ; Skip if sample switch state released
+    iorlw   1   
+    btfsc   SW_Last         ; Skip if last sample switch state is released
+    xorlw   1   
+    btfsc   STATUS,Z        ; Skip if current sample different from last
     goto    DebounceCount
 ;
 ; Update the last sample
