@@ -8,7 +8,7 @@
 ;
 ; Description:
 ;
-;   Example project for the PIC12F508 controller using the MPASMWIN(v5.84) tool chain.
+;   Example project for the PIC12F508 controller using the MPASMWIN(v5.22) from the command line.
 ;
 ;
 ;
