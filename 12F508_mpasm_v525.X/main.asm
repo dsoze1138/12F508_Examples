@@ -1,5 +1,5 @@
 ;
-; File:     main.S
+; File:     main.asm
 ; Target:   PIC12F508
 ; Author:   dan1138
 ; Date:     2021-01-25
