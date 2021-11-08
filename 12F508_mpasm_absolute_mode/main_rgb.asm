@@ -36,7 +36,7 @@
 ;
 ; Set the configuration word
 ;
- __CONFIG _OSC_IntRC & _WDT_OFF & _CP_OFF & _MCLRE_OFF
+    __CONFIG _OSC_IntRC & _WDT_OFF & _CP_OFF & _MCLRE_OFF
 ;
 ;
 ;
@@ -53,8 +53,10 @@
 #define SW_BIT    GPIO,GP3
 #define SW_Sample SW_StateFlags,0
 #define SW_Last   SW_StateFlags,1
+#define SW_LastMask   b'00000010'
 #define SW_Stable SW_StateFlags,2
 #define SW_State  SW_StateFlags,3
+#define SW_StateMask  b'00001000'
 #define SW_DEBOUNCE_TICKS (20)
 
 
@@ -124,16 +126,12 @@ Tick_One_ms:
     bsf     SW_Sample       ; Switch is pressed
     clrw    
     btfsc   SW_Sample       ; Skip if sample switch state released
-    iorlw   1   
+    iorlw   SW_LastMask   
     btfsc   SW_Last         ; Skip if last sample switch state is released
-    xorlw   1   
+    xorlw   SW_LastMask
     btfsc   STATUS,Z        ; Skip if current sample different from last
     goto    DebounceCount
-;
-; Update the last sample
-    bcf     SW_Last
-    btfsc   SW_Sample
-    bsf     SW_Last
+    xorwf   SW_StateFlags,F ; Update the last sample
 ;
 ; Restart debounce count
     movlw   SW_DEBOUNCE_TICKS
@@ -154,16 +152,12 @@ DebounceCount:
 ; Check to see if the last state is different from the new state
     clrw
     btfsc   SW_Stable
-    iorlw   1
+    iorlw   SW_StateMask
     btfsc   SW_State
-    xorlw   1
+    xorlw   SW_StateMask
     btfsc   STATUS,Z        ; Skip if last state different from current stable state
     goto    AppLoop
-;
-; Update the last state
-    bcf     SW_State
-    btfsc   SW_Stable
-    bsf     SW_State
+    xorwf   SW_StateFlags,F ; Update the last state
 ;
 ; Change what LEDs are on and off
     btfss   SW_State        ; Skip if switch changed to pressed
